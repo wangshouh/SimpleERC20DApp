@@ -11,6 +11,10 @@
                         <td>Address</td>
                         <td>{{ metamaskInfo.ethAccount.slice(0, 15) }}</td>
                     </tr>
+                    <tr>
+                        <td>Balance</td>
+                        <td>{{ metamaskInfo.balance }} Eth</td>
+                    </tr>
                 </table>
             </div>
             <div class="content has-text-centered" v-else>
@@ -41,15 +45,21 @@ import { ethers } from "ethers";
 
 const metamaskInfo = reactive({
     install: false,
-    localUpdateTime: null,
-    ethAccount: null
+    ethAccount: null,
+    balance: null
 });
 
 onMounted(() => {
     if (typeof window.ethereum !== 'undefined') {
         metamaskInfo.installBool = true;
         metamaskInfo.ethAccount = localStorage.getItem("ethAccount");
-        metamaskInfo.chainId = window.ethereum.chainId 
+        metamaskInfo.chainId = window.ethereum.chainId;
+        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        provider.getBalance(metamaskInfo.ethAccount).then(
+            (value)=>{
+                metamaskInfo.balance = ethers.utils.formatEther(value);
+            }
+        ) 
     }
 });
 
